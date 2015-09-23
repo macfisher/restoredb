@@ -10,8 +10,6 @@ function writeLog($str)
     var_dump($logFile);
 }
 
-writeLog("Testing \__DIR__ capabilities.");
-
 function echoHelp()
 {
     echo "\n";
@@ -30,18 +28,26 @@ function echoHelp()
 
 function listBackupsDir()
 {
-    $files = scandir("/usr/local/bin/restoreAcademyDB/backups");
+    $files = scandir(__DIR__."/backups");
 
     echo "\n";
     echo "Available Backup Files:\n";
 
     foreach ($files as $file) {
         $fileParts = pathinfo($file);
+        $noFiles = false;
 
-        if ($fileParts['extension'] !== 'sql' || $file !== '.' || $file !== '..') {
+        if ($fileParts['extension'] == 'sql') {
             echo $file . "\n";
-            echo $fileParts;
+            //echo $fileParts;
+            //var_dump($file);
+        } else {
+            $noFiles = true;
         }
+    }
+
+    if ($noFiles) {
+        echo "There are no available .sql files.\n";
     }
 
     echo "\n";
@@ -60,7 +66,11 @@ if (!file_exists(__DIR__."/var/log")) {
         shell_exec($makeLog);
 }
 
-var_dump($argv);
+# make backups dir if it does not exist
+if (!file_exists(__DIR__."/backups")) {
+    $makeBackups = sprintf("sudo -u root mkdir %s%s", __DIR__, "/backups");
+    shell_exec($makeBackups);
+}
 
 if (count($argv) > 5) {
         echoHelp();
