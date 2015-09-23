@@ -1,15 +1,19 @@
 #!/usr/bin/php -q
 <?php
 
-function writeLog($str)
+function writeLog($result, $backupFile)
 {
     $logFile = __DIR__."/var/log/restore.log";
+
+	if ($result) {
+		$str = "SUCCESS: Database restored from ".$backupFile;
+	} else {
+		$str = "ERROR: mysqldump failed to import backup from ".$backupFile;
+	}
 
     $write = sprintf("sudo -u root echo %s %s >> %s", date('Y-m-d h:i:s'), $str, $logFile);
     shell_exec($write);
 }
-
-writeLog("test");
 
 function echoHelp()
 {
@@ -56,20 +60,21 @@ function listBackupsDir()
 }
 
 function restoreDb($user, $passwd, $db, $file) {
-	echo "\n";
-	echo "User: ".$user."\n";
-	echo "Password: ".$passwd."\n";
-	echo "Database: ".$db."\n";
-	echo "Backup: ".$file."\n";
-	echo "\n";
+		
 	
 	$backup = __DIR__."/backups/".$file;	
 
 	$restoreCmd = sprintf("sudo -u root /usr/bin/mysqldump -u%s -p'%s' --database %s < $backup", 
 				  $user, $passwd, $db, $backup);
 
-	shell_exec($restoreCmd);
-
+	exec($restoreCmd, $out, $rc);
+	
+	// log if mysql dump passed or failed
+	if ($rc !== 0) {
+		writeLog($result=false, $file);
+	} else {
+		writeLog($result=true, $file);
+	}
 }
 
 
