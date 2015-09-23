@@ -7,8 +7,9 @@ function writeLog($str)
 
     $write = sprintf("sudo -u root echo %s %s >> %s", date('Y-m-d h:i:s'), $str, $logFile);
     shell_exec($write);
-    var_dump($logFile);
 }
+
+writeLog("test");
 
 function echoHelp()
 {
@@ -17,11 +18,11 @@ function echoHelp()
     echo "                 [-list]\n";
     echo "                 [-help]\n";
     echo "\n";
-    echo "Import -- Import file from backups stored in backups directory.\n";
+    echo "Import -- Import .sql file from backups directory.\n";
     echo "List   -- List backup files in the backups directory.\n";
     echo "Help   -- Print help screen.\n";
     echo "\n";
-    echo "*NOTE*: Backup files must be placed in a \"backups\" directory\n";
+    echo "*NOTE*: SQL files must be placed in a \"backups\" directory.\n";
     echo "        Only give the filename, not the full path.\n";
     echo "\n";
 }
@@ -52,24 +53,25 @@ function listBackupsDir()
 }
 
 
-# make var dir if it doesn't exist
+// make var dir if it doesn't exist
 if (!file_exists(__DIR__."/var")) {
         $makeVar = sprintf("sudo -u root mkdir %s%s", __DIR__, "/var");
         shell_exec($makeVar);
 }
 
-# make log dir inside var if it does not exist
+// make log dir inside var if it does not exist
 if (!file_exists(__DIR__."/var/log")) {
         $makeLog = sprintf("sudo -u root mkdir %s%s", __DIR__, "/var/log");
         shell_exec($makeLog);
 }
 
-# make backups dir if it does not exist
+// make backups dir if it does not exist
 if (!file_exists(__DIR__."/backups")) {
     $makeBackups = sprintf("sudo -u root mkdir %s%s", __DIR__, "/backups");
     shell_exec($makeBackups);
 }
 
+// argv logic
 if (count($argv) > 5 || count($argv) == 1) {
         echoHelp();
 }
