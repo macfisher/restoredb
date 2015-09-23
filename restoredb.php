@@ -29,18 +29,16 @@ function echoHelp()
 function listBackupsDir()
 {
     $files = scandir(__DIR__."/backups");
+    $noFiles = false;
 
     echo "\n";
     echo "Available Backup Files:\n";
 
     foreach ($files as $file) {
         $fileParts = pathinfo($file);
-        $noFiles = false;
 
         if ($fileParts['extension'] == 'sql') {
             echo $file . "\n";
-            //echo $fileParts;
-            //var_dump($file);
         } else {
             $noFiles = true;
         }
