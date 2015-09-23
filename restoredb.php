@@ -14,9 +14,9 @@ writeLog("test");
 function echoHelp()
 {
     echo "\n";
-    echo "Usage: restoredb [-restore] [user] [password] [file to import]\n";
-    echo "                 [-list]\n";
-    echo "                 [-help]\n";
+    echo "Usage: php restoredb.php [-restore] [user] [password] [database] [file]\n";
+    echo "                         [-list]\n";
+    echo "                         [-help]\n";
     echo "\n";
     echo "Restore -- Import .sql file from backups directory.\n";
     echo "List   -- List backup files in the backups directory.\n";
@@ -55,8 +55,21 @@ function listBackupsDir()
     echo "\n";
 }
 
-function restoreDb() {
-	echo "\nUser wants to restore DB";
+function restoreDb($user, $passwd, $db, $file) {
+	echo "\n";
+	echo "User: ".$user."\n";
+	echo "Password: ".$passwd."\n";
+	echo "Database: ".$db."\n";
+	echo "Backup: ".$file."\n";
+	echo "\n";
+	
+	$backup = __DIR__."/backups/".$file;	
+
+	$restoreCmd = sprintf("sudo -u root /usr/bin/mysqldump -u%s -p'%s' --database %s < $backup", 
+				  $user, $passwd, $db, $backup);
+
+	shell_exec($restoreCmd);
+
 }
 
 
@@ -97,12 +110,12 @@ if (isset($argv[1])) {
 
 if (isset($argv[1])) {
 	if ($argv[1] === "-restore") {
-		restoreDb();
+		restoreDb($argv[2], $argv[3], $argv[4], $argv[5]);
 	}
 }
 
 if (isset($argv[1])) {
-	if ($argv[1]!=="-help"||$argv[1]!=="-list"||$argv[1]!=="-restore") {
+	if ($argv[1]!=="-help"&&$argv[1]!=="-list"&&$argv[1]!=="-restore") {
 		echoHelp();
 	}
 }
