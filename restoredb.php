@@ -21,7 +21,7 @@ function echoHelp()
     echo "List   -- List backup files in the backups directory.\n";
     echo "Help   -- Print help screen.\n";
     echo "\n";
-    echo "*NOTE*: Backup files must be placed in /usr/local/bin/restoreAcademyDB/backups\n";
+    echo "*NOTE*: Backup files must be placed in a \"backups\" directory\n";
     echo "        Only give the filename, not the full path.\n";
     echo "\n";
 }
@@ -70,7 +70,7 @@ if (!file_exists(__DIR__."/backups")) {
     shell_exec($makeBackups);
 }
 
-if (count($argv) > 5) {
+if (count($argv) > 5 || count($argv) == 1) {
         echoHelp();
 }
 
