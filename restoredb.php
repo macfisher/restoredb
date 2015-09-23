@@ -30,7 +30,12 @@ function echoHelp()
 function listBackupsDir()
 {
     $files = scandir(__DIR__."/backups");
-    $noFiles = false;
+	
+	if (count($files) <= 2) {
+		$noFiles = true;
+	} else {
+		$noFiles = false;
+	}
 
     echo "\n";
     echo "Available Backup Files:\n";
@@ -40,8 +45,6 @@ function listBackupsDir()
 
         if ($fileParts['extension'] == 'sql') {
             echo $file . "\n";
-        } else {
-            $noFiles = true;
         }
     }
 
@@ -72,14 +75,18 @@ if (!file_exists(__DIR__."/backups")) {
 }
 
 // argv logic
-if (count($argv) > 5 || count($argv) == 1) {
+if (!isset($argv[1])) {
         echoHelp();
 }
 
-if ($argv[1] === "-help") {
-        echoHelp();
+if (isset($argv[1])) {
+	if ($argv[1] === "-help") {
+		    echoHelp();
+	}
 }
 
-if ($argv[1] === "-list") {
-        listBackupsDir();
+if (isset($argv[1])) {
+	if ($argv[1] === "-list") {
+		    listBackupsDir();
+	}
 }
