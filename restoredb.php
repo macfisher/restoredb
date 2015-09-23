@@ -7,9 +7,10 @@ function writeLog($str)
 
     $write = sprintf("sudo -u root echo %s %s >> %s", date('Y-m-d h:i:s'), $str, $logFile);
     shell_exec($write);
+    var_dump($logFile);
 }
 
-writeLog("Testing __DIR__ capabilities.");
+writeLog("Testing \__DIR__ capabilities.");
 
 function echoHelp()
 {
