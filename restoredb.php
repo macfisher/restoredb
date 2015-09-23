@@ -68,7 +68,7 @@ function listBackupsDir()
 }
 
 function restoreDb($user, $passwd, $db, $file) {
-	$link = mysqli_connect("localhost", $user, $passwd);
+	$link = new mysqli("localhost", $user, $passwd);
 	
 
 	if (!$link) {
@@ -77,18 +77,20 @@ function restoreDb($user, $passwd, $db, $file) {
 	} else {
 		//writeLog("linkSuccess", $file);
 		echo "\nconnected to db\n";
-		mysqli_query($link, "DROP DATABASE magento-solr");
-		mysqli_query($link, "CREATE DATABASE magento-solr");
+		$result1 = $link->real_query("DROP DATABASE `magento-solr`;");
+		echo $link->error;
+		$result2 = $link->real_query("CREATE DATABASE `magento-solr`;");
 	}
 
-	//mysqli_close($link);
+	mysqli_close($link);
 	
-	$backup = __DIR__."/backups/".$file;	
+	$backup = __DIR__."/backups/".$file;
 
-	$restoreCmd = sprintf("sudo -u root /usr/bin/mysqldump -u%s -p'%s' --database %s < $backup", 
+	$restoreCmd = sprintf("sudo -u root /usr/bin/mysql -u%s -p'%s' --database %s < $backup", 
 				  $user, $passwd, $db, $backup);
 
 	//exec($restoreCmd, $out, $rc);
+	//shell_exec($restoreCmd);
 	
 	// log if mysql dump passed or failed
 	/*if ($rc !== 0) {
