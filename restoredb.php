@@ -5,13 +5,21 @@ function writeLog($result, $backupFile)
 {
     $logFile = __DIR__."/var/log/restore.log";
 
-	if ($result) {
+	if ($result === "restoreSuccess") {
 		$str = "SUCCESS: Database restored from ".$backupFile;
-	} else {
+	} elseif ($result === "restoreFail") {
 		$str = "ERROR: mysqldump failed to import backup from ".$backupFile;
 	}
 
-    $write = sprintf("sudo -u root echo %s %s >> %s", date('Y-m-d h:i:s'), $str, $logFile);
+	if ($result === "linkSuccess") {
+		
+	}
+
+	//log db connect success/fail
+	
+
+	// log success/fail    
+	$write = sprintf("sudo -u root echo %s %s >> %s", date('Y-m-d h:i:s'), $str, $logFile);
     shell_exec($write);
 }
 
@@ -60,21 +68,34 @@ function listBackupsDir()
 }
 
 function restoreDb($user, $passwd, $db, $file) {
-		
+	$link = mysqli_connect("localhost", $user, $passwd);
+	
+
+	if (!$link) {
+		//writeLog("linkFail", $file);
+		echo "Not connected to DB";
+	} else {
+		//writeLog("linkSuccess", $file);
+		echo "\nconnected to db\n";
+		mysqli_query($link, "DROP DATABASE magento-solr");
+		mysqli_query($link, "CREATE DATABASE magento-solr");
+	}
+
+	//mysqli_close($link);
 	
 	$backup = __DIR__."/backups/".$file;	
 
 	$restoreCmd = sprintf("sudo -u root /usr/bin/mysqldump -u%s -p'%s' --database %s < $backup", 
 				  $user, $passwd, $db, $backup);
 
-	exec($restoreCmd, $out, $rc);
+	//exec($restoreCmd, $out, $rc);
 	
 	// log if mysql dump passed or failed
-	if ($rc !== 0) {
-		writeLog($result=false, $file);
+	/*if ($rc !== 0) {
+		writeLog("restoreSuccess", $file);
 	} else {
-		writeLog($result=true, $file);
-	}
+		writeLog("restoreFail", $file);
+	}*/
 }
 
 
