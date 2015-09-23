@@ -14,11 +14,11 @@ writeLog("test");
 function echoHelp()
 {
     echo "\n";
-    echo "Usage: restoredb [-import] [user] [password] [file to import]\n";
+    echo "Usage: restoredb [-restore] [user] [password] [file to import]\n";
     echo "                 [-list]\n";
     echo "                 [-help]\n";
     echo "\n";
-    echo "Import -- Import .sql file from backups directory.\n";
+    echo "Restore -- Import .sql file from backups directory.\n";
     echo "List   -- List backup files in the backups directory.\n";
     echo "Help   -- Print help screen.\n";
     echo "\n";
@@ -53,6 +53,10 @@ function listBackupsDir()
     }
 
     echo "\n";
+}
+
+function restoreDb() {
+	echo "\nUser wants to restore DB";
 }
 
 
@@ -90,3 +94,21 @@ if (isset($argv[1])) {
 		    listBackupsDir();
 	}
 }
+
+if (isset($argv[1])) {
+	if ($argv[1] === "-restore") {
+		restoreDb();
+	}
+}
+
+if (isset($argv[1])) {
+	if ($argv[1]!=="-help"||$argv[1]!=="-list"||$argv[1]!=="-restore") {
+		echoHelp();
+	}
+}
+
+
+
+
+
+
