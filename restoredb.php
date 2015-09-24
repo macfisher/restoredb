@@ -1,25 +1,12 @@
 <?php
 
-function writeLog($result, $backupFile)
+function writeLog($message)
 {
     $logFile = __DIR__."/var/log/restore.log";
 
-	if ($result === "restoreSuccess") {
-		$str = "SUCCESS: Database restored from ".$backupFile;
-	} elseif ($result === "restoreFail") {
-		$str = "ERROR: mysqldump failed to import backup from ".$backupFile;
-	}
-
-	if ($result === "linkSuccess") {
-		
-	}
-
-	//log db connect success/fail
-	
-
-	// log success/fail    
-	$write = sprintf("sudo -u root echo %s %s >> %s", date('Y-m-d h:i:s'), $str, $logFile);
+	$write = sprintf("sudo -u root echo %s %s >> %s", date('Y-m-d h:i:s'), $message, $logFile);
     shell_exec($write);
+	var_dump($message);
 }
 
 function echoHelp()
@@ -67,20 +54,28 @@ function listBackupsDir()
 }
 
 function restoreDb($user, $passwd, $db, $file) {
+
+	try {
 	$link = new mysqli("localhost", $user, $passwd);
 	
 
 	if (!$link) {
 		//writeLog("linkFail", $file);
-		echo "Not connected to DB";
+		throw new Exception("Failed to connect to Database");
 	} else {
 		//writeLog("linkSuccess", $file);
 		echo "\nconnected to db\n";
+
+
 		$result1 = $link->real_query("DROP DATABASE `magento-solr`;");
+		if (!$result1) {
+			throw new Exception($link->error);
+		}
 		$result2 = $link->real_query("CREATE DATABASE `magento-solr`;");
+
 	}
 
-	mysqli_close($link);
+	$link->close();
 	
 	$backup = __DIR__."/backups/".$file;
 
@@ -89,13 +84,16 @@ function restoreDb($user, $passwd, $db, $file) {
 
 	exec($restoreCmd, $out, $rc);
 	//shell_exec($restoreCmd);
-	
 	// log if mysql dump passed or failed
 	/*if ($rc !== 0) {
 		writeLog("restoreSuccess", $file);
 	} else {
 		writeLog("restoreFail", $file);
 	}*/
+	} catch(Exception $e) {
+		writeLog($e->getMessage());
+		$link->close();
+	}
 }
 
 
