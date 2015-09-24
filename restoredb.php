@@ -59,9 +59,9 @@ function restoreDb($user, $passwd, $db, $file) {
 	
 		if (!$link) {
 			//writeLog("linkFail", $file);
-			throw new Exception("ERROR: Failed to connect to Database: ".$db);
+			throw new Exception("ERROR: Failed to connect to Database");
 		} else {
-			writeLog("SUCCESS: Connected to Database: ".$db);
+			writeLog("SUCCESS: Connected to Database");
 
 			$dropDb = $link->real_query("DROP DATABASE `$db`;");
 
@@ -134,8 +134,12 @@ if (isset($argv[1])) {
 
 if (isset($argv[1])) {
 	if ($argv[1] === "-restore") {
-		restoreDb($argv[2], $argv[3], $argv[4], $argv[5]);
-	}
+		if (count($argv) === 6){
+			restoreDb($argv[2], $argv[3], $argv[4], $argv[5]);
+		} else {
+			echoHelp();
+		}
+	} 
 }
 
 if (isset($argv[1])) {
