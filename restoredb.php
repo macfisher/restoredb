@@ -58,11 +58,9 @@ function restoreDb($user, $passwd, $db, $file) {
 		$link = new mysqli("localhost", $user, $passwd);
 	
 		if (!$link) {
-			//writeLog("linkFail", $file);
 			throw new Exception("ERROR: Failed to connect to Database");
 		} else {
 			writeLog("SUCCESS: Connected to Database");
-
 			$dropDb = $link->real_query("DROP DATABASE `$db`;");
 
 			if (!$dropDb) {
@@ -74,7 +72,6 @@ function restoreDb($user, $passwd, $db, $file) {
 			if (!$createDb) {
 				throw new Exception($link->error);
 			}
-
 		}
 
 		$link->close();
@@ -83,17 +80,18 @@ function restoreDb($user, $passwd, $db, $file) {
 		$restoreCmd = sprintf("sudo -u root /usr/bin/mysql -u%s -p'%s' --database %s < $backup", 
 					  $user, $passwd, $db, $backup);
 		
-		$cmdOut = shell_exec($restoreCmd);
+		exec($restoreCmd, $out, $rc);
 
-		if (!$cmdOut) {
+		if ($rc !== 0) {
 			throw new Exception("ERROR: Failed to restore Database: ".$db);
 		} else {
-			writeLog("SUCCESS: Database restore complete on Database: ".$db);
+			writeLog("SUCCESS: Database restore completed on Database: ".$db);
 		}
 	} catch(Exception $e) {
 		writeLog($e->getMessage());
 		$link->close();
 	}
+
 }
 
 
