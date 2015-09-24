@@ -6,7 +6,6 @@ function writeLog($message)
 
 	$write = sprintf("sudo -u root echo %s %s >> %s", date('Y-m-d h:i:s'), $message, $logFile);
     shell_exec($write);
-	var_dump($message);
 }
 
 function echoHelp()
@@ -56,40 +55,41 @@ function listBackupsDir()
 function restoreDb($user, $passwd, $db, $file) {
 
 	try {
-	$link = new mysqli("localhost", $user, $passwd);
+		$link = new mysqli("localhost", $user, $passwd);
 	
+		if (!$link) {
+			//writeLog("linkFail", $file);
+			throw new Exception("ERROR: Failed to connect to Database: ".$db);
+		} else {
+			writeLog("SUCCESS: Connected to Database: ".$db);
 
-	if (!$link) {
-		//writeLog("linkFail", $file);
-		throw new Exception("Failed to connect to Database");
-	} else {
-		//writeLog("linkSuccess", $file);
-		echo "\nconnected to db\n";
+			$dropDb = $link->real_query("DROP DATABASE `$db`;");
 
+			if (!$dropDb) {
+				throw new Exception($link->error);
+			}
 
-		$result1 = $link->real_query("DROP DATABASE `magento-solr`;");
-		if (!$result1) {
-			throw new Exception($link->error);
+			$createDb = $link->real_query("CREATE DATABASE `$db`;");
+			
+			if (!$createDb) {
+				throw new Exception($link->error);
+			}
+
 		}
-		$result2 = $link->real_query("CREATE DATABASE `magento-solr`;");
 
-	}
+		$link->close();
+		$backup = __DIR__."/backups/".$file;
 
-	$link->close();
-	
-	$backup = __DIR__."/backups/".$file;
+		$restoreCmd = sprintf("sudo -u root /usr/bin/mysql -u%s -p'%s' --database %s < $backup", 
+					  $user, $passwd, $db, $backup);
+		
+		$cmdOut = shell_exec($restoreCmd);
 
-	$restoreCmd = sprintf("sudo -u root /usr/bin/mysql -u%s -p'%s' --database %s < $backup", 
-				  $user, $passwd, $db, $backup);
-
-	exec($restoreCmd, $out, $rc);
-	//shell_exec($restoreCmd);
-	// log if mysql dump passed or failed
-	/*if ($rc !== 0) {
-		writeLog("restoreSuccess", $file);
-	} else {
-		writeLog("restoreFail", $file);
-	}*/
+		if (!$cmdOut) {
+			throw new Exception("ERROR: Failed to restore Database: ".$db);
+		} else {
+			writeLog("SUCCESS: Database restore complete on Database: ".$db);
+		}
 	} catch(Exception $e) {
 		writeLog($e->getMessage());
 		$link->close();
