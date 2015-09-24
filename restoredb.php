@@ -1,12 +1,15 @@
 <?php
-$restoredb = new RestoreDb();
+$restoredb = new RestoreDb($argv);
 $restoredb->run();
 
 class RestoreDb
 {
+	protected $args;	
 
-    public function __construct()
+    public function __construct($args)
     {
+		$this->args = $args;
+		
         if (!file_exists(__DIR__ . "/var")) {
             $makeVar = sprintf("sudo -u root mkdir %s%s", __DIR__, "/var");
             shell_exec($makeVar);
@@ -27,7 +30,7 @@ class RestoreDb
 
     public function run()
     {
-        switch ($argv[1]) {
+        switch ($this->args[1]) {
             case "-help":
                 $this->echoHelp();
                 break;
@@ -37,8 +40,8 @@ class RestoreDb
                 break;
 
             case "-restore":
-                if (count($argv) === 6) {
-                    $this->restoreDb($argv[2], $argv[3], $argv[4], $argv[5]);
+                if (count($this->args) === 6) {
+                    $this->restoreDb($this->args[2], $this->args[3], $this->args[4], $this->args[5]);
                 } else {
                     $this->echoHelp();
                 }
