@@ -1,4 +1,3 @@
-#!/usr/bin/php -q
 <?php
 
 function writeLog($result, $backupFile)
@@ -78,7 +77,6 @@ function restoreDb($user, $passwd, $db, $file) {
 		//writeLog("linkSuccess", $file);
 		echo "\nconnected to db\n";
 		$result1 = $link->real_query("DROP DATABASE `magento-solr`;");
-		echo $link->error;
 		$result2 = $link->real_query("CREATE DATABASE `magento-solr`;");
 	}
 
@@ -89,7 +87,7 @@ function restoreDb($user, $passwd, $db, $file) {
 	$restoreCmd = sprintf("sudo -u root /usr/bin/mysql -u%s -p'%s' --database %s < $backup", 
 				  $user, $passwd, $db, $backup);
 
-	//exec($restoreCmd, $out, $rc);
+	exec($restoreCmd, $out, $rc);
 	//shell_exec($restoreCmd);
 	
 	// log if mysql dump passed or failed
