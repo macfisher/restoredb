@@ -1,4 +1,13 @@
 <?php
+
+/**
+ * This script requires there to be .sql file backups in a 'backups' directory.
+ * To make a back up, run the following from the command line:
+ *
+ * /usr/bin/mysqldump -u <user> --password='<password>' --database <database>
+ * 	> <path to backups dir>/<name of backup file>.sql
+ */
+
 $restoredb = new RestoreDb($argv);
 $restoredb->run();
 
