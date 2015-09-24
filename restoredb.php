@@ -1,6 +1,55 @@
 <?php
 
-function writeLog($message)
+
+
+
+
+class RestoreDb {
+	
+	public function __construct() {
+		if (!file_exists(__DIR__."/var")) {
+				$makeVar = sprintf("sudo -u root mkdir %s%s", __DIR__, "/var");
+				shell_exec($makeVar);
+		}
+
+		// make log dir inside var if it does not exist
+		if (!file_exists(__DIR__."/var/log")) {
+				$makeLog = sprintf("sudo -u root mkdir %s%s", __DIR__, "/var/log");
+				shell_exec($makeLog);
+		}
+
+		// make backups dir if it does not exist
+		if (!file_exists(__DIR__."/backups")) {
+			$makeBackups = sprintf("sudo -u root mkdir %s%s", __DIR__, "/backups");
+			shell_exec($makeBackups);
+		}
+	}
+
+	public function run() {
+		switch($argv[1]) {
+			case "-help":
+				echoHelp();
+				break;
+
+			case "-list":
+				listBackupsDir();
+				break;
+	
+			case "-restore":
+				if (count($argv) === 6){
+					restoreDb($argv[2], $argv[3], $argv[4], $argv[5]);
+				} else {
+					echoHelp();
+				}
+				break;
+
+			default:
+				echoHelp();
+				break;	
+		}
+	}
+
+	public function writeLog($message)
 {
     $logFile = __DIR__."/var/log/restore.log";
 
@@ -8,7 +57,7 @@ function writeLog($message)
     shell_exec($write);
 }
 
-function echoHelp()
+public function echoHelp()
 {
     echo "\n";
     echo "Usage: php restoredb.php [-restore] [user] [password] [database] [file]\n";
@@ -24,7 +73,7 @@ function echoHelp()
     echo "\n";
 }
 
-function listBackupsDir()
+public function listBackupsDir()
 {
     $files = scandir(__DIR__."/backups");
 	
@@ -52,7 +101,7 @@ function listBackupsDir()
     echo "\n";
 }
 
-function restoreDb($user, $passwd, $db, $file) {
+public function restoreDb($user, $passwd, $db, $file) {
 
 	try {
 		$link = new mysqli("localhost", $user, $passwd);
@@ -94,57 +143,10 @@ function restoreDb($user, $passwd, $db, $file) {
 
 }
 
-
-// make var dir if it doesn't exist
-if (!file_exists(__DIR__."/var")) {
-        $makeVar = sprintf("sudo -u root mkdir %s%s", __DIR__, "/var");
-        shell_exec($makeVar);
 }
 
-// make log dir inside var if it does not exist
-if (!file_exists(__DIR__."/var/log")) {
-        $makeLog = sprintf("sudo -u root mkdir %s%s", __DIR__, "/var/log");
-        shell_exec($makeLog);
-}
 
-// make backups dir if it does not exist
-if (!file_exists(__DIR__."/backups")) {
-    $makeBackups = sprintf("sudo -u root mkdir %s%s", __DIR__, "/backups");
-    shell_exec($makeBackups);
-}
 
-// argv logic
-if (!isset($argv[1])) {
-        echoHelp();
-}
-
-if (isset($argv[1])) {
-	if ($argv[1] === "-help") {
-		    echoHelp();
-	}
-}
-
-if (isset($argv[1])) {
-	if ($argv[1] === "-list") {
-		    listBackupsDir();
-	}
-}
-
-if (isset($argv[1])) {
-	if ($argv[1] === "-restore") {
-		if (count($argv) === 6){
-			restoreDb($argv[2], $argv[3], $argv[4], $argv[5]);
-		} else {
-			echoHelp();
-		}
-	} 
-}
-
-if (isset($argv[1])) {
-	if ($argv[1]!=="-help"&&$argv[1]!=="-list"&&$argv[1]!=="-restore") {
-		echoHelp();
-	}
-}
 
 
 
