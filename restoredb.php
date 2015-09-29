@@ -78,8 +78,8 @@ class RestoreDb
         echo "                         [-help]\n";
         echo "\n";
         echo "Restore -- Import .sql file from backups directory.\n";
-        echo "List   -- List backup files in the backups directory.\n";
-        echo "Help   -- Print help screen.\n";
+        echo "List    -- List backup files in the backups directory.\n";
+        echo "Help    -- Print help screen.\n";
         echo "\n";
         echo "*NOTE*: SQL files must be placed in a \"backups\" directory.\n";
         echo "        Only give the filename, not the full path.\n";
